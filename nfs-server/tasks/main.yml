@@ -5,6 +5,18 @@
     state: present
   loop: "{{ pkgs }}"
   
+- name: STARTING A SERVICES
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop:
+    - nfs-server
+    - rpcbind
+    - firewalld
+  notify:
+    - config firewall rules
+
 - name: IS NFS SHARE EXIST?
   file:
     path: "{{ item.share }}"
@@ -16,6 +28,8 @@
   template:
     src: exports.j2
     dest: /etc/exports
+  notify:
+    - restart nfs-server
 
 # - name: Ensure required entries are made to hosts file. # Notes 1232
   # lineinfile:
@@ -25,25 +39,7 @@
 # with_items:
   # - '/export/volumes  *(rw,no_root_squash,no_subtree_check,insecure)' 
 
-- name: SERVICE START & ENABLED
-  service:
-    name: "{{ item }}"
-    state: restarted
-    enabled: true
-  loop: "{{ srvs }}"
-
-- name: PREPARE FIREWALL
-  firewalld:
-    service: "{{ item }}"
-    state: enabled
-    permanent: true
-    immediate: true
-  loop:
-    - nfs
-    - rpc-bind
-    - mountd    
-
-- name: SELINUX BE PERMISSIVE
+- name: CONFIG SELINUX
   selinux:
     policy: targeted
     state: permissive

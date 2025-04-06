@@ -1,2 +1,20 @@
 ---
-# handlers file for nfs-server
+- name: restart nfs-server
+  service:
+    name: nfs-server
+    state: restarted
+    enabled: true
+
+- name: config firewall rules
+  firewalld:
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  loop:
+    - nfs
+    - rpc-bind
+    - mountd
+
+
+

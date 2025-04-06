@@ -1,15 +1,7 @@
 ---
-pkgs:
-  - nfs-utils
-  - rpcbind
-
-srvs:
-  - nfs-server
-  - firewalld
-  - rpcbind
-
 nfs_shares: 
-  - { share: "/nfs_share", clients: "*", perms: "rw", sync: "sync", squash: "no_root_squash" }
-  - { share: "/mount/share", clients: "*", perms: "rw", sync: "sync", squash: "no_root_squash" }
+  - { share: "/nfs_share", hosts: "*", perms: "rx", other: "sync, no_root_squash" }
+  - { share: "/mount/share", hosts: "192.168.29.0/24", perms: "rw", other: "sync, no_root_squash" }
+  - { share: "/nfs/share", hosts: "192.168.29.105", perms: "rw", other: "sync, no_root_squash" }
 
 
