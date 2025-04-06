@@ -1,0 +1,19 @@
+---
+- name: Configuring a NFS-Server and Client
+  hosts: 
+    - nfs_server
+    - nfs_clients
+  vars:
+    - config_nfs_server: true
+    - config_nfs_clients: true
+  tasks:
+    - name: Configuring a NFS-server
+      include_role:
+        name: nfs-server
+      when: inventory_hostname in groups["nfs_server"] and config_nfs_server == true
+
+    - name: Configuring a NFS-client
+      include_role: 
+        name: nfs-client
+      when: inventory_hostname in groups['nfs_clients'] and config_nfs_clients == true
+

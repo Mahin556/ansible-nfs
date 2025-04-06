@@ -1,0 +1,6 @@
+{% for nfs_share in nfs_shares %}
+{{ nfs_share.share }} {{ nfs_share.clients }}({{ nfs_share.perms }},{{ nfs_share.sync }},{{ nfs_share.squash }})
+
+{% endfor %}
+
+

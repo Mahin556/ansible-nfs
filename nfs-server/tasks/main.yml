@@ -1,0 +1,51 @@
+---
+- name: INSTALLING A REQUIRED PACKAGES
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ pkgs }}"
+  
+- name: IS NFS SHARE EXIST?
+  file:
+    path: "{{ item.share }}"
+    mode: "0777"
+    state: directory
+  loop: "{{ nfs_shares }}"   
+
+- name: EXPORTING NFS SHARE.....
+  template:
+    src: exports.j2
+    dest: /etc/exports
+
+# - name: Ensure required entries are made to hosts file. # Notes 1232
+  # lineinfile:
+  # path: /etc/exports
+  # state: present
+  # line: "{{ item }}"
+# with_items:
+  # - '/export/volumes  *(rw,no_root_squash,no_subtree_check,insecure)' 
+
+- name: SERVICE START & ENABLED
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop: "{{ srvs }}"
+
+- name: PREPARE FIREWALL
+  firewalld:
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  loop:
+    - nfs
+    - rpc-bind
+    - mountd    
+
+- name: SELINUX BE PERMISSIVE
+  selinux:
+    policy: targeted
+    state: permissive
+
+
