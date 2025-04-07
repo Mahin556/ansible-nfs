@@ -1,0 +1,10 @@
+---
+- name: CONFIGURING A CENTRALIZE SERVER FOR ALL USERS HOME DIRECTORIES
+  hosts: nfs_server nfs_clients
+  become: true
+  tasks:
+  - name: Including centralize_usershomedirs role
+    include_role: 
+      name: centralize_usershomedirs
+
+
