@@ -20,7 +20,7 @@
 - name: IS NFS SHARE EXIST?
   file:
     path: "{{ item.share }}"
-    mode: "0777"
+    mode: "{{ item.mode }}"
     state: directory
   loop: "{{ nfs_shares }}"   
 

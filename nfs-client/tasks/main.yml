@@ -3,9 +3,13 @@
   yum:
     name: nfs-utils
     state: present
-  when: inventory_hostname == item.dest_host 
+
+- name: makesure mount point already created
+  file:
+    path: "{{ item.dest }}"
+    state: directory
   loop: "{{ nfs_mounts }}"
-  
+
 - name: Configuring a NFS-client
   mount:
     src: "{{ item.src }}"
@@ -13,6 +17,5 @@
     state: "{{ item.state }}"
     opts: rw,sync,hard
     fstype: nfs
-  when: inventory_hostname == item.dest_host 
   loop: "{{ nfs_mounts }}"
 
