@@ -17,8 +17,6 @@
   notify:
     - config firewall rules
 
-- name: Creating a user accounts on the remote system
-
 - name: EXPORTING NFS SHARE.....
   template:
     src: exports.j2
