@@ -1,0 +1,24 @@
+---
+- name: Installing nfs-utils and rpcbind
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ pkgs }}"
+
+- name: starting nfs-server, rpcbind and firewalld
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - nfs-server
+    - rpcbind
+    - firewalld
+
+- name: Exporting user's home directories
+  template:
+    src: exports.j2
+    dest: /etc/exports
+  when: inventory_hostname in groups['nfs_server']
+  notify:
+    - reload /etc/exports file

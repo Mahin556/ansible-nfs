@@ -1,65 +1,26 @@
 ---
-- name: INCLUDING USER_ACCOUNTS.YML
+- name: Including --> user_accounts.yml
   include_vars: user_accounts.yml
 
-- name: INSTALLING A REQUIRED PACKAGES
-  yum:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ pkgs }}"
-  
-- name: STARTING A SERVICES
-  service:
-    name: "{{ item }}"
-    state: restarted
-    enabled: true
-  loop:
-    - nfs-server
-    - rpcbind
-    - firewalld
-  notify:
-    - config firewall rules
-
-- name: CONFIG SELINUX
-  selinux:
-    policy: targeted
-    state: permissive
-
-- name: CREATING A USER'S HOME DIRECTORY
+- name: Creating a user accounts
   user:
     name: "{{ item.name }}"
     state: present
     uid: "{{ item.uid }}"
-    password: "{{ item.passwd | password_hash('sha512') }}" 
+    password: "{{ item.passwd | password_hash('sha512') }}"
   loop: "{{ user_accounts }}"
   no_log: yes
   ignore_errors: true
 
-- name: EXPORTING USER'S HOME DIRECTORY
-  template:
-    src: exports.j2
-    dest: /etc/exports
+- name: Including --> server.yml
+  include_tasks: server.yml
   when: inventory_hostname in groups['nfs_server']
-  notify:
-    - reload /etc/exports file
-  
-- name: MOUNTING USER'S HOME DIRECTORIES NFS SERVER ----> NFS CLIENTS
-  mount:
-    src: "{{ nfs_server_ip }}:/{{ item.home }}"
-    path: "{{ item.home }}"
-    state: mounted
-    opts: rw,sync,hard
-    fstype: nfs
-  loop: "{{ user_accounts }}"
+
+- name: Including --> client.yml
+  include_tasks: client.yml
   when: inventory_hostname in groups['nfs_clients']
 
-  # - name: Ensure required entries are made to hosts file. # Notes 1232
-  # lineinfile:
-  # path: /etc/exports
-  # state: present
-  # line: "{{ item }}"
-# with_items:
-  # - '/export/volumes  *(rw,no_root_squash,no_subtree_check,insecure)' 
-
-
-
+- name: Configuring --> selinux
+  selinux:
+    policy: targeted
+    state: permissive

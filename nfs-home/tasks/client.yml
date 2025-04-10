@@ -1,0 +1,22 @@
+---
+- name: INSTALLING A REQUIRED PACKAGES
+  yum:
+    name: nfs-utils 
+    state: present
+
+- name: MOUNTING USER'S HOME DIRECTORIES NFS SERVER ----> NFS CLIENTS
+  mount:
+    src: "{{ nfs_server_ip }}:/{{ item.home }}"
+    path: "{{ item.home }}"
+    state: mounted
+    opts: rw,sync,hard
+    fstype: nfs
+  loop: "{{ user_accounts }}"
+
+# - name: Ensure required entries are made to hosts file. # Notes 1232
+# # lineinfile:
+#   # path: /etc/exports
+#   # state: present
+#   # line: "{{ item }}"
+# # with_items:
+#   # - '/export/volumes  *(rw,no_root_squash,no_subtree_check,insecure)' 
